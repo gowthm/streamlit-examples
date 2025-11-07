@@ -92,7 +92,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
-Your Name - [@yourhandle](https://twitter.com/yourhandle)
+Your Name - [Gowtham](https://github.com/gowthm)
 
 ## ⭐ Acknowledgments
 
