@@ -1,0 +1,43 @@
+                    ┌──────────────────────────────────────────┐
+                    │              Streamlit UI                 │
+                    │ ──────────────────────────────────────── │
+                    │  User Input (Text box / Voice)            │
+                    │  Display Chat History                     │
+                    │  Handle Buttons / Actions                 │
+                    └──────────────────────────────────────────┘
+                                     │
+                                     ▼
+         ┌──────────────────────────────────────────────────────┐
+         │              Streamlit Backend Logic                 │
+         │ ─────────────────────────────────────────────────── │
+         │  - Session state management                         │
+         │  - Input validation                                 │
+         │  - Prompt construction                              │
+         │  - Cache (st.cache_resource / st.cache_data)        │
+         └──────────────────────────────────────────────────────┘
+                                     │
+                                     ▼
+         ┌──────────────────────────────────────────────────────┐
+         │             LLM Integration Layer                    │
+         │ ─────────────────────────────────────────────────── │
+         │  - OpenAI / Anthropic / Gemini / Azure OpenAI APIs  │
+         │  - LangChain / LlamaIndex optional abstraction       │
+         │  - Custom prompt templates                          │
+         └──────────────────────────────────────────────────────┘
+                                     │
+                                     ▼
+         ┌──────────────────────────────────────────────────────┐
+         │              Data / Memory Layer                     │
+         │ ─────────────────────────────────────────────────── │
+         │  - Chat history (in session_state or DB)             │
+         │  - Vector store (FAISS / Pinecone / Chroma)          │
+         │  - Documents / CSV / PDFs for context retrieval      │
+         └──────────────────────────────────────────────────────┘
+                                     │
+                                     ▼
+         ┌──────────────────────────────────────────────────────┐
+         │               External APIs or Tools                 │
+         │ ─────────────────────────────────────────────────── │
+         │  - Search, weather, database, custom functions       │
+         │  - Function calling (tool use by LLM)                │
+         └──────────────────────────────────────────────────────┘
