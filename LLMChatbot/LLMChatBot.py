@@ -69,7 +69,6 @@ st.markdown("""
 with st.sidebar:
 
 
-    st.markdown("<div class='sidebar-box'>", unsafe_allow_html=True)
     st.markdown("<div class='sidebar-title'>⚡ Model Selection</div>", unsafe_allow_html=True)
 
     model = st.selectbox(
