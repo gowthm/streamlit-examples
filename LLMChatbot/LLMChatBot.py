@@ -94,9 +94,10 @@ st.write("Fast, enhanced UI experience powered by Groq LLMs.")
 # ---------------------------------------------------
 # API Key
 # ---------------------------------------------------
-api_key = os.getenv("GROQ_API_KEY")
-if not api_key:
-    st.error("❌ GROQ_API_KEY environment variable not set.")
+try:
+    api_key = st.secrets["GROQ_API_KEY"]
+except:
+    st.error("❌ Please add GROQ_API_KEY in Streamlit → Secrets")
     st.stop()
 
 client = Groq(api_key=api_key)
