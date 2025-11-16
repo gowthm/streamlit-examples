@@ -1,4 +1,5 @@
 import os
+import time
 import streamlit as st
 from groq import Groq
 from dotenv import load_dotenv
@@ -67,8 +68,6 @@ st.markdown("""
 # Sidebar
 # ---------------------------------------------------
 with st.sidebar:
-
-
     st.markdown("<div class='sidebar-title'>⚡ Model Selection</div>", unsafe_allow_html=True)
 
     model = st.selectbox(
@@ -77,29 +76,28 @@ with st.sidebar:
             "llama-3.3-70b-versatile",
             "meta-llama/llama-4-maverick-17b-128e-instruct",
             "meta-llama/llama-4-scout-17b-16e-instruct",
-            "meta-llama/llama-guard-4-12b",
             "meta-llama/llama-prompt-guard-2-22m"
         ]
     )
 
-    st.markdown("</div>", unsafe_allow_html=True)
+# ---------------------------------------------------
+# API Key & Cached Groq Client
+# ---------------------------------------------------
+@st.cache_resource
+def load_client():
+    try:
+        return Groq(api_key=st.secrets["GROQ_API_KEY"])
+    except:
+        st.error("❌ Please add GROQ_API_KEY in Streamlit → Secrets")
+        st.stop()
+
+client = load_client()
 
 # ---------------------------------------------------
-# Main Header
+# Chat title
 # ---------------------------------------------------
 st.title("⚡ Groq Chat Assistant")
 st.write("Fast, enhanced UI experience powered by Groq LLMs.")
-
-# ---------------------------------------------------
-# API Key
-# ---------------------------------------------------
-try:
-    api_key = st.secrets["GROQ_API_KEY"]
-except:
-    st.error("❌ Please add GROQ_API_KEY in Streamlit → Secrets")
-    st.stop()
-
-client = Groq(api_key=api_key)
 
 # ---------------------------------------------------
 # Chat History
@@ -115,33 +113,44 @@ for msg in st.session_state.messages:
         st.markdown(f"<div class='chat-bubble-assistant'>{msg['content']}</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# Chat Input
+# Chat Input – using FORM (prevents rate limit bursts)
 # ---------------------------------------------------
-user_input = st.chat_input("Type your message...")
+with st.form("chat_form", clear_on_submit=True):
+    user_input = st.text_input("Type your message...")
+    send_btn = st.form_submit_button("Send")
 
-if user_input:
+if send_btn and user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     st.markdown(f"<div class='chat-bubble-user'>{user_input}</div>", unsafe_allow_html=True)
 
-    # Assistant reply
     placeholder = st.empty()
     full_reply = ""
 
-    with st.spinner("Generating response..."):
-        response = client.chat.completions.create(
-            model=model,
-            messages=st.session_state.messages,
-            stream=True
-        )
+    # Important → avoid sending too many requests at once
+    time.sleep(0.3)
 
-        for chunk in response:
-            delta = chunk.choices[0].delta
-            if hasattr(delta, "content") and delta.content:
-                full_reply += delta.content
-                placeholder.markdown(
-                    f"<div class='chat-bubble-assistant'>{full_reply}</div>",
-                    unsafe_allow_html=True
-                )
+    try:
+        with st.spinner("Generating response..."):
+            response = client.chat.completions.create(
+                model=model,
+                messages=st.session_state.messages,
+                stream=True
+            )
 
-    st.session_state.messages.append({"role": "assistant", "content": full_reply})
+            for chunk in response:
+                delta = chunk.choices[0].delta
+                if hasattr(delta, "content") and delta.content:
+                    full_reply += delta.content
+                    placeholder.markdown(
+                        f"<div class='chat-bubble-assistant'>{full_reply}</div>",
+                        unsafe_allow_html=True
+                    )
+
+    except Exception as e:
+        if "rate_limit" in str(e).lower():
+            st.warning("⚠️ Rate limit reached. Please wait a moment and try again.")
+        else:
+            st.error(f"Unexpected error: {e}")
+    else:
+        st.session_state.messages.append({"role": "assistant", "content": full_reply})
