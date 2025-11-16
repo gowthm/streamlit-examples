@@ -92,7 +92,7 @@ with st.sidebar:
 @st.cache_resource
 def load_client():
     try:
-        return Groq(api_key="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")
+        return Groq(api_key=st.secrets["GROQ_API_KEY"])
     except:
         st.error("❌ Please add GROQ_API_KEY in Streamlit → Secrets")
         st.stop()
