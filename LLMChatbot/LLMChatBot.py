@@ -1,8 +1,8 @@
 import os
-import time
 import streamlit as st
 from groq import Groq
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
@@ -68,25 +68,31 @@ st.markdown("""
 # Sidebar
 # ---------------------------------------------------
 with st.sidebar:
+
+
     st.markdown("<div class='sidebar-title'>⚡ Model Selection</div>", unsafe_allow_html=True)
 
     model = st.selectbox(
         "",
         [
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+            "llama-3.1-8b-instant",
             "llama-3.3-70b-versatile",
             "meta-llama/llama-4-maverick-17b-128e-instruct",
             "meta-llama/llama-4-scout-17b-16e-instruct",
-            "meta-llama/llama-prompt-guard-2-22m"
         ]
     )
 
+    st.markdown("</div>", unsafe_allow_html=True)
+
 # ---------------------------------------------------
-# API Key & Cached Groq Client
+# API Key
 # ---------------------------------------------------
 @st.cache_resource
 def load_client():
     try:
-        return Groq(api_key=st.secrets["GROQ_API_KEY"])
+        return Groq(api_key="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")
     except:
         st.error("❌ Please add GROQ_API_KEY in Streamlit → Secrets")
         st.stop()
@@ -94,10 +100,12 @@ def load_client():
 client = load_client()
 
 # ---------------------------------------------------
-# Chat title
+# Main Header
 # ---------------------------------------------------
 st.title("⚡ Groq Chat Assistant")
 st.write("Fast, enhanced UI experience powered by Groq LLMs.")
+
+
 
 # ---------------------------------------------------
 # Chat History
@@ -113,17 +121,16 @@ for msg in st.session_state.messages:
         st.markdown(f"<div class='chat-bubble-assistant'>{msg['content']}</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# Chat Input – using FORM (prevents rate limit bursts)
+# Chat Input
 # ---------------------------------------------------
-with st.form("chat_form", clear_on_submit=True):
-    user_input = st.text_input("Type your message...")
-    send_btn = st.form_submit_button("Send")
+user_input = st.chat_input("Type your message...")
 
-if send_btn and user_input:
+if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     st.markdown(f"<div class='chat-bubble-user'>{user_input}</div>", unsafe_allow_html=True)
 
+    # Assistant reply
     placeholder = st.empty()
     full_reply = ""
 
